@@ -189,7 +189,7 @@ vim.opt.belloff = 'all' -- never ring the bell for any reason
 
 -- Folds
 vim.opt.foldlevelstart = 99 -- start unfolded
-vim.opt.foldmethod = 'syntax'
+vim.opt.foldmethod = 'expr'
 
 vim.opt.formatoptions = vim.opt.formatoptions + 'j' -- remove comment leader when joining comment lines
 vim.opt.formatoptions = vim.opt.formatoptions + 'n' -- smart auto-indenting inside numbered lists
@@ -906,13 +906,13 @@ require('lazy').setup({
       incremental_selection = {
         enable = true,
         keymaps = {
-          init_selection = "<C-space>",
-          node_incremental = "<C-space>",
+          init_selection = '<C-space>',
+          node_incremental = '<C-space>',
           scope_incremental = false,
-          node_decremental = "<bs>",
+          node_decremental = '<bs>',
         },
+      },
     },
-  },
     config = function(_, opts)
       -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
 
