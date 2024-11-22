@@ -158,6 +158,9 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+-- Add project to the path
+vim.opt.path = '**'
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
