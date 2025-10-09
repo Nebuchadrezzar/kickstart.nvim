@@ -215,6 +215,7 @@ vim.api.nvim_create_user_command('DiagnosticToggle', function()
     signs = not vt,
   }
 end, { desc = 'toggle diagnostic' })
+vim.keymap.set('n', '<leader>d', ':DiagnosticToggle<cr>', { desc = 'Togggle Diagnostics' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
