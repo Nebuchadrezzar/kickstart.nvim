@@ -246,6 +246,7 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
 require 'custom.global_keymaps'
+require('custom.ccr').setup()
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`

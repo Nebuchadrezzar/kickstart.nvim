@@ -33,3 +33,5 @@ vim.api.nvim_create_autocmd({ 'OptionSet', 'WinEnter' }, {
     end
   end,
 })
+-- Normal-mode, non-recursive (default), no remap needed.
+vim.keymap.set('n', '<leader>;', ':g//#<Left><Left>', { desc = 'Global :g/<pattern>/# (print line numbers for matches)' })
