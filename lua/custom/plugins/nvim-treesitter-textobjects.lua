@@ -4,6 +4,15 @@ return {
   config = function()
     require('nvim-treesitter.configs').setup {
       textobjects = {
+        incremental_selection = {
+          enable = true,
+          keymaps = {
+            init_selection = '<c-space>', -- Start a new incremental selection
+            node_incremental = '<c-space>', -- Expand to the next, larger node
+            node_decremental = '<bs>', -- Shrink the selection
+            scope_incremental = '<c-s>', -- Expand to the next, larger scope
+          },
+        },
         select = {
           enable = true,
 
