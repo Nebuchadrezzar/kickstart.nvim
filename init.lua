@@ -88,7 +88,7 @@ P.S. You can delete this when you're done too. It's your config now! :)
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-vim.g.mapleader = ','
+vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
@@ -169,10 +169,9 @@ vim.o.confirm = true
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
-vim.keymap.set("ca", "vsp", "vert split")
-vim.keymap.set("ca", "vsf", "vert sf")
-vim.keymap.set("ca", "vsb", "vert sbuffer")
-
+vim.keymap.set('ca', 'vsp', 'vert split')
+vim.keymap.set('ca', 'vsf', 'vert sf')
+vim.keymap.set('ca', 'vsb', 'vert sbuffer')
 
 vim.o.hidden = true -- allows you to hide buffers with unsaved changes without being prompted
 vim.opt.shortmess = vim.opt.shortmess + 'A' -- ignore annoying swapfile messages
@@ -453,11 +452,30 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          mappings = {
+            i = {
+              ['<CR>'] = function(prompt_bufnr)
+                local actions = require 'telescope.actions'
+                local action_state = require 'telescope.actions.state'
+                local current_picker = action_state.get_current_picker(prompt_bufnr)
+                local multi_selection = current_picker:get_multi_selection()
+
+                if next(multi_selection) then -- Check if multi_selection is not empty
+                  -- Handle multi-selection (e.g., open all in splits, tabs, etc.)
+                  -- This example opens them in vertical splits
+
+                  for _, entry in ipairs(multi_selection) do
+                    vim.cmd('vsplit ' .. entry.path)
+                  end
+                else
+                  -- Default single file opening
+                  actions.file_edit(prompt_bufnr)
+                end
+              end,
+            },
+          },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -482,6 +500,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>fd', builtin.lsp_definitions, { desc = '[f]ind [d]efinition under cursor' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -952,7 +971,7 @@ require('lazy').setup({
       vim.cmd.colorscheme 'catppuccin'
 
       -- You can configure highlights by doing something like
-      vim.cmd.hi 'Comment gui=none'
+      vim.cmd.hi 'Comment gui=italic cterm=italic'
     end,
   },
 
