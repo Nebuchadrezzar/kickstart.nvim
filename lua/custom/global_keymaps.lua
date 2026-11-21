@@ -7,6 +7,17 @@ vim.o.wrap = false
 -- Add project to the path
 vim.opt.path = '**'
 
+-- <C-d>/<C-u> always scroll half a window. Built in, a count (e.g. a stray `1<C-d>`)
+-- permanently sets 'scroll' for the window, so every later <C-d> moves only that many lines.
+-- Resetting 'scroll' to 0 (= half the window height) and running the key with :normal!
+-- (which drops any typed count) keeps it at half a page.
+for _, key in ipairs { '<C-d>', '<C-u>' } do
+  vim.keymap.set({ 'n', 'x' }, key, function()
+    vim.wo.scroll = 0
+    vim.cmd.normal { vim.keycode(key), bang = true }
+  end, { desc = key == '<C-d>' and 'Scroll half a page down' or 'Scroll half a page up' })
+end
+
 -- Center searches
 vim.keymap.set({ 'n' }, 'n', 'nzz')
 vim.keymap.set({ 'n' }, 'N', 'Nzz')
