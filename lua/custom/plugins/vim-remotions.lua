@@ -4,8 +4,18 @@ local motions = {
   change = { backward = "g,", forward = "g;" },
   class = { backward = "[[", forward = "]]" },
   classend = { backward = "[]", forward = "][" },
+  -- Treesitter textobject moves (lua/custom/plugins/nvim-treesitter-textobjects.lua)
   method = { backward = "[m", forward = "]m" },
   methodend = { backward = "[M", forward = "]M" },
+  call = { backward = "[f", forward = "]f" },
+  callend = { backward = "[F", forward = "]F" },
+  tsclass = { backward = "[c", forward = "]c" },
+  tsclassend = { backward = "[C", forward = "]C" },
+  conditional = { backward = "[i", forward = "]i" },
+  conditionalend = { backward = "[I", forward = "]I" },
+  loop = { backward = "[l", forward = "]l" }, -- in a quickfix/location window: preview items
+  loopend = { backward = "[L", forward = "]L" },
+
   line = { backward = "k", forward = "j", repeat_if_count = 1, repeat_count = 1 },
   char = { backward = "h", forward = "l", repeat_if_count = 1, repeat_count = 1 },
   word = { backward = "b", forward = "w", repeat_if_count = 1, repeat_count = 1 },
@@ -21,7 +31,6 @@ local motions = {
   hsplit = { backward = "<C-w>-", forward = "<C-w>+" },
   arg = { backward = "[a", forward = "]a" },
   buffer = { backward = "[b", forward = "]b" },
-  location = { backward = "[l", forward = "]l" },
   quickfix = { backward = "[q", forward = "]q" },
   tag = { backward = "[t", forward = "]t" },
   diagnostic = { backward = "[g", forward = "]g" },

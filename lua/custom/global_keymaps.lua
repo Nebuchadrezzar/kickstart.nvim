@@ -20,22 +20,26 @@ vim.o.infercase = true
 -- Configure how new splits should be opened
 vim.opt.splitkeep = 'screen'
 
--- adjust unimparied keymap to preview items in the location list
-vim.keymap.set('n', ']l', 'j<CR><C-w>p', { desc = '[p]review the next location list item.' })
-vim.keymap.set('n', '[l', 'k<CR><C-w>p', { desc = '[p]review the previous location list item.' })
+-- Inside a location/quickfix list window, ]l / [l preview the next / previous item:
+-- open it in the previous window and come back to the list. Buffer-local, so in code
+-- buffers ]l / [l stay the treesitter "next/previous loop" moves.
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'qf',
+  group = vim.api.nvim_create_augroup('custom-qf-preview', { clear = true }),
+  callback = function(event)
+    -- Scheduled: vim-remotions' own FileType handler runs after this one and replaces
+    -- every buffer-local [x / ]x key with its wrapper of the global key.
+    vim.schedule(function()
+      if not vim.api.nvim_buf_is_valid(event.buf) then return end
+      vim.keymap.set('n', ']l', 'j<CR><C-w>p', { buffer = event.buf, desc = 'Preview the next list item' })
+      vim.keymap.set('n', '[l', 'k<CR><C-w>p', { buffer = event.buf, desc = 'Preview the previous list item' })
+    end)
+  end,
+})
 
 -- Enable undercurl
 vim.cmd [[let &t_Cs = "\e[4:3m"]]
 vim.cmd [[let &t_Ce = "\e[4:0m"]]
 
-vim.api.nvim_create_autocmd({ 'OptionSet', 'WinEnter' }, {
-  pattern = '*',
-  callback = function()
-    if vim.wo.diff then
-      vim.keymap.set('n', ']d', ']c', { buffer = true, desc = 'Next diff change', noremap = true, silent = true })
-      vim.keymap.set('n', '[d', '[c', { buffer = true, desc = 'Previous diff change', noremap = true, silent = true })
-    end
-  end,
-})
 -- Normal-mode, non-recursive (default), no remap needed.
 vim.keymap.set('n', '<leader>;', ':g//#<Left><Left>', { desc = 'Global :g/<pattern>/# (print line numbers for matches)' })

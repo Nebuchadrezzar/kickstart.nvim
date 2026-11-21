@@ -3,6 +3,6 @@ return {
   'stevearc/aerial.nvim',
   opts = {},
   keys = {
-    { '<Leader>v', ':AerialToggle!<CR>', { desc = 'Toggle Aerial sideview' } },
+    { '<Leader>v', ':AerialToggle!<CR>', desc = 'Toggle Aerial sideview' },
   },
 }
