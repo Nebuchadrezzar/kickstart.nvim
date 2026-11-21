@@ -197,9 +197,22 @@ vim.o.autoindent = true -- maintain indent of current line
 vim.o.backspace = 'indent,start,eol' -- allow unrestricted backspacing in insert mode
 vim.o.belloff = 'all' -- never ring the bell for any reason
 
--- Folds
-vim.o.foldlevelstart = 99 -- start unfolded
-vim.o.foldmethod = 'expr'
+-- Folds (built-in; replaces nvim-ufo + statuscol)
+--  Folds follow the treesitter syntax tree where a parser is attached (see the treesitter
+--  section below) and indentation elsewhere. zc/zo/za close/open/toggle, zR/zM all.
+vim.o.foldmethod = 'indent' -- fallback; treesitter buffers switch to 'expr'
+vim.o.foldlevel = 99 -- keep everything open...
+vim.o.foldlevelstart = 99 -- ...including in new buffers
+vim.o.foldenable = true
+vim.o.foldtext = '' -- show the folded line itself, with syntax highlighting
+vim.o.foldcolumn = '1'
+vim.opt.fillchars:append {
+  eob = ' ', -- no ~ after the end of the buffer
+  fold = ' ',
+  foldsep = ' ',
+  foldopen = vim.fn.nr2char(0xf47c), -- Nerd Font chevron down
+  foldclose = vim.fn.nr2char(0xf460), -- Nerd Font chevron right
+}
 
 vim.opt.formatoptions = vim.opt.formatoptions + 'j' -- remove comment leader when joining comment lines
 vim.opt.formatoptions = vim.opt.formatoptions + 'n' -- smart auto-indenting inside numbered lists
@@ -989,10 +1002,12 @@ require('lazy').setup({
         -- enables syntax highlighting and other treesitter features
         vim.treesitter.start(buf, language)
 
-        -- enables treesitter based folds
+        -- enables treesitter based folds in every window showing this buffer
         -- for more info on folds see `:help folds`
-        -- vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-        -- vim.wo.foldmethod = 'expr'
+        for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+          vim.wo[win][0].foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+          vim.wo[win][0].foldmethod = 'expr'
+        end
 
         -- check if treesitter indentation is available for this language, and if so enable it
         -- in case there is no indent query, the indentexpr will fallback to the vim's built in one

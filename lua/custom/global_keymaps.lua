@@ -11,8 +11,16 @@ vim.opt.path = '**'
 vim.keymap.set({ 'n' }, 'n', 'nzz')
 vim.keymap.set({ 'n' }, 'N', 'Nzz')
 
--- Keymapping for undotree
-vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
+-- Built-in undo tree (Neovim 0.12): moving the cursor in its window steps through undo history
+-- (loaded on first use: lazy.nvim resets the runtimepath at startup, which drops an earlier :packadd)
+vim.keymap.set('n', '<leader>u', function()
+  vim.cmd.packadd 'nvim.undotree'
+  require('undotree').open()
+end, { desc = 'Toggle [U]ndo tree' })
+
+-- Built-in: clear search highlighting after 'updatetime' idle or on entering Insert mode
+-- (replaces vim-cool; <Esc> also clears it, see init.lua)
+vim.cmd.packadd 'nohlsearch'
 
 -- Case searching
 vim.o.infercase = true
