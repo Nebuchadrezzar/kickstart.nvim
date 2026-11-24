@@ -689,11 +689,22 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        pyright = {
+        -- basedpyright (Pyright's engine, installed with `pipx install basedpyright`, not Mason) is the
+        -- language server for completion, navigation and hover. Type checking of Django code is left to
+        -- mypy + django-stubs (lua/custom/plugins/lint.lua), because Pyright can't see the attributes
+        -- Django adds at runtime. Turn off its attribute errors in the project's Pyright config
+        -- (reportAttributeAccessIssue = "none"); config-file settings override settings sent from here.
+        basedpyright = {
           settings = {
-            -- Using Ruff's import organizer
-            pyright = { disableOrganizeImports = true },
+            basedpyright = { disableOrganizeImports = true }, -- Using Ruff's import organizer
+            python = {},
           },
+          -- Point it at the project's Poetry venv, the same Python mypy runs from. Without one (the client
+          -- containers), it finds the system Python on PATH itself.
+          before_init = function(_, config)
+            local python = require('custom.python_env').venv_bin(config.root_dir, 'python')
+            if python then config.settings.python.pythonPath = python end
+          end,
         },
         ruff = {}, -- Python linting, import sorting and formatting (see conform below)
         -- rust_analyzer = {},
@@ -749,10 +760,13 @@ require('lazy').setup({
       -- Translates between nvim-lspconfig server names and mason.nvim package names (e.g. lua_ls <-> lua-language-server)
       require('mason-lspconfig').setup {
         -- true: also start servers installed by hand via :Mason (e.g. html, ts_ls), as before
-        automatic_enable = true,
+        -- except Mason's pyright, which basedpyright replaces
+        automatic_enable = { exclude = { 'pyright' } },
       }
 
-      local ensure_installed = vim.tbl_keys(servers or {})
+      -- Servers installed outside Mason (pipx), which mason-tool-installer must not try to install
+      local not_from_mason = { basedpyright = true }
+      local ensure_installed = vim.tbl_filter(function(name) return not not_from_mason[name] end, vim.tbl_keys(servers or {}))
       vim.list_extend(ensure_installed, {
         -- You can add other tools here that you want Mason to install
       })
