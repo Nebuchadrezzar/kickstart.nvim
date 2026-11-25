@@ -62,11 +62,11 @@ return {
     vim.keymap.set('n', '<leader>pa', function() swap.swap_previous '@parameter.inner' end, { desc = 'Swap parameter with previous' })
     vim.keymap.set('n', '<leader>pm', function() swap.swap_previous '@function.outer' end, { desc = 'Swap function with previous' })
 
-    -- Move: {key, move function, capture, query group, description}
+    -- Move: {key, move function, capture, query group, description, key to use in diff mode}
     local moves = {
       { ']f', 'goto_next_start', '@call.outer', 'textobjects', 'Next function call start' },
       { ']m', 'goto_next_start', '@function.outer', 'textobjects', 'Next method/function def start' },
-      { ']c', 'goto_next_start', '@class.outer', 'textobjects', 'Next class start' },
+      { ']c', 'goto_next_start', '@class.outer', 'textobjects', 'Next class start (diff: next change)', ']c' },
       { ']i', 'goto_next_start', '@conditional.outer', 'textobjects', 'Next conditional start' },
       { ']l', 'goto_next_start', '@loop.outer', 'textobjects', 'Next loop start' },
       { ']s', 'goto_next_start', '@local.scope', 'locals', 'Next scope' },
@@ -80,7 +80,7 @@ return {
 
       { '[f', 'goto_previous_start', '@call.outer', 'textobjects', 'Prev function call start' },
       { '[m', 'goto_previous_start', '@function.outer', 'textobjects', 'Prev method/function def start' },
-      { '[c', 'goto_previous_start', '@class.outer', 'textobjects', 'Prev class start' },
+      { '[c', 'goto_previous_start', '@class.outer', 'textobjects', 'Prev class start (diff: prev change)', '[c' },
       { '[i', 'goto_previous_start', '@conditional.outer', 'textobjects', 'Prev conditional start' },
       { '[l', 'goto_previous_start', '@loop.outer', 'textobjects', 'Prev loop start' },
 
@@ -91,8 +91,16 @@ return {
       { '[L', 'goto_previous_end', '@loop.outer', 'textobjects', 'Prev loop end' },
     }
     for _, m in ipairs(moves) do
-      local key, fn, capture, group, desc = m[1], m[2], m[3], m[4], m[5]
-      vim.keymap.set({ 'n', 'x', 'o' }, key, function() move[fn](capture, group) end, { desc = desc })
+      local key, fn, capture, group, desc, diff_key = m[1], m[2], m[3], m[4], m[5], m[6]
+      if diff_key then
+        -- Diff-aware: in a diff window return the built-in key (expr maps are noremap, so it
+        -- reaches Vim's own ]c / [c, with counts and operators working as usual); elsewhere
+        -- run the treesitter move through <Cmd>, since an expr map can't move the cursor itself.
+        local cmd = ('<Cmd>lua require("nvim-treesitter-textobjects.move").%s(%q, %q)<CR>'):format(fn, capture, group)
+        vim.keymap.set({ 'n', 'x', 'o' }, key, function() return vim.wo.diff and diff_key or cmd end, { expr = true, desc = desc })
+      else
+        vim.keymap.set({ 'n', 'x', 'o' }, key, function() move[fn](capture, group) end, { desc = desc })
+      end
     end
 
     -- Repeating these moves (and f/F/t/T) with ; and , is done by vim-remotions:
