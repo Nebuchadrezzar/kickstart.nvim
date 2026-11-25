@@ -15,6 +15,8 @@ local motions = {
   conditionalend = { backward = "[I", forward = "]I" },
   loop = { backward = "[l", forward = "]l" }, -- in a quickfix/location window: preview items
   loopend = { backward = "[L", forward = "]L" },
+  scope = { backward = "[s", forward = "]s" }, -- with 'spell' set: misspellings
+  fold = { backward = "zk", forward = "zj" }, -- built-in; ]z/[z stay end/start of current fold
 
   line = { backward = "k", forward = "j", repeat_if_count = 1, repeat_count = 1 },
   char = { backward = "h", forward = "l", repeat_if_count = 1, repeat_count = 1 },
@@ -33,7 +35,7 @@ local motions = {
   buffer = { backward = "[b", forward = "]b" },
   quickfix = { backward = "[q", forward = "]q" },
   tag = { backward = "[t", forward = "]t" },
-  diagnostic = { backward = "[g", forward = "]g" },
+  diagnostic = { backward = "[d", forward = "]d" },
 }
 
 local leap_motions = {

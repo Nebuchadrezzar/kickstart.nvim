@@ -71,6 +71,8 @@ Unimpaired-style pairs that ship with Neovim. Capitals jump to the first/last it
 | `[d` / `]d` | Prev / next diagnostic | **n** |
 | `[D` / `]D` | First / last diagnostic | **n** |
 | `<C-w>d` | Show diagnostics under cursor | **n** |
+| `zj` / `zk` | Start of next fold / end of prev fold | **n**, **x**, **o** |
+| `]z` / `[z` | End / start of the fold the cursor is in | **n**, **x**, **o** |
 
 ### LSP
 
@@ -173,8 +175,7 @@ Main branch, `lookahead = true`: each object jumps forward to the next match if 
 | `aa` / `ia` | Argument incl. comma / argument only | **x**, **o** |
 | `ai` / `ii` | Conditional / its body | **x**, **o** |
 | `al` / `il` | Loop / its body | **x**, **o** |
-| `a=` / `i=` | Assignment / its inner part | **x**, **o** |
-| `l=` / `r=` | Left / right side of an assignment | **x**, **o** |
+| `a=` / `i=` | Assignment / the side under the cursor | **x**, **o** |
 | `]m` / `[m` | Next / prev method/function start | **n**, **x**, **o** |
 | `]M` / `[M` | Next / prev method/function end | **n**, **x**, **o** |
 | `]c` / `[c` | Next / prev class start; in a diff window, next / prev change | **n**, **x**, **o** |
@@ -185,8 +186,7 @@ Main branch, `lookahead = true`: each object jumps forward to the next match if 
 | `]I` / `[I` | Next / prev conditional end | **n**, **x**, **o** |
 | `]l` / `[l` | Next / prev loop start | **n**, **x**, **o** |
 | `]L` / `[L` | Next / prev loop end | **n**, **x**, **o** |
-| `]s` | Next scope | **n**, **x**, **o** |
-| `]z` | Next fold | **n**, **x**, **o** |
+| `]s` / `[s` | Next / prev scope; with `spell` on, next / prev misspelling | **n**, **x**, **o** |
 | `<leader>na` / `<leader>pa` | Swap parameter with next / prev | **n** |
 | `<leader>nm` / `<leader>pm` | Swap function with next / prev | **n** |
 
@@ -240,7 +240,7 @@ Surrounding ids: `(` `[` `{` `<` add inner spaces, `)` `]` `}` `>` don't; `q` an
 | `<leader>s/` | Grep in open files | **n** |
 | `<leader>sf` | Search files | **n** |
 | `<leader>sg` | Live grep | **n** |
-| `<leader>sw` | Search word under cursor / selection | **n**, **v** |
+| `<leader>w` / `<leader>sw` | Search word under cursor / selection | **n**, **v** |
 | `<leader>s.` | Recent files | **n** |
 | `<leader>sr` | Resume last search | **n** |
 | `<leader>sd` | Diagnostics | **n** |
@@ -278,8 +278,6 @@ Buffer-local, in files tracked by git.
 | --- | --- | --- |
 | `<leader>a` | `:Ack` — project search into quickfix | **n** |
 | `<leader>r` | `:Acks` — search and replace across quickfix results | **n** |
-| `<leader>s` | Ack the word under cursor (plugin default) | **n** |
-| `<leader>l` | `:Lack` — search into the location list (plugin default) | **n** |
 
 ### [aerial.nvim](https://github.com/stevearc/aerial.nvim)
 
@@ -327,9 +325,10 @@ After any motion below, `;` repeats it forward and `,` backward.
 | `;` / `,` | Repeat last motion forward / backward | **n**, **v** |
 | `f` `F` `t` `T` | Character find (the classic `;` behaviour) | **n**, **v** |
 | `}` `{` / `)` `(` | Paragraph / sentence | **n**, **v** |
-| `]m` `]M` `]c` `]C` `]f` `]F` `]i` `]I` `]l` `]L` | Treesitter moves and their `[` partners | **n**, **v** |
+| `]m` `]M` `]c` `]C` `]f` `]F` `]i` `]I` `]l` `]L` `]s` | Treesitter moves and their `[` partners | **n**, **v** |
 | `]]` `[[` `][` `[]` | Section / class (built-in) | **n**, **v** |
-| `]q` `]b` `]a` `]t` | Quickfix, buffer, argument, tag | **n**, **v** |
+| `]q` `]b` `]a` `]t` `]d` | Quickfix, buffer, argument, tag, diagnostic | **n**, **v** |
+| `zj` / `zk` | Next / prev fold | **n**, **v** |
 | `g;` / `g,` | Change list | **n**, **v** |
 | `<C-o>` / `<C-i>` | Jump list | **n**, **v** |
 | `<C-d>` `<C-u>` `<C-f>` `<C-b>` | Half and full page scroll | **n**, **v** |
@@ -381,7 +380,7 @@ The ones worth drilling:
 | `daa` / `cia` | Drop or rewrite one argument, comma handled |
 | `vam` / `yam` | Select or copy a whole view or method |
 | `dac` | Delete a whole class, e.g. a serializer |
-| `cr=` | Change the right side of an assignment, e.g. a model field definition |
+| `ci=` | Change the side of an assignment under the cursor, e.g. a model field definition |
 | `cii` | Rewrite the body of an `if` |
 | `<C-space>` (repeat) | Grow the selection node by node; `<BS>` to back off |
 | `]m` then `;` `;` | Walk method by method through a file |
@@ -390,8 +389,4 @@ The ones worth drilling:
 
 ### Gotchas
 
-- `]s` / `[s` normally jump between misspellings; `]s` now jumps to the next scope.
-- `r=` is mapped in Visual mode, so `r` in Visual waits for `timeoutlen` and `r=` no longer fills a selection with `=`. `l=` makes `l` wait in Visual mode too.
-- The mini.ai comment in `init.lua` shows `yiiq`, but `ii` is the treesitter conditional, so that sequence yanks an `if` body and then starts recording a macro with `q`. Kickstart's original example was `yinq` (next quote), which is disabled here.
-- Ferret still maps its default `<leader>s` (Ack word under cursor), which is also the prefix of every Telescope `<leader>s…` search. Pause after `<leader>s` and you run an Ack instead of picking a search. Setting `vim.g.FerretMap = 0` before ferret loads drops its defaults, including `<leader>l`.
 - mini.surround's `s` prefix replaces built-in `s` (substitute character). Use `cl` for that instead.
