@@ -767,9 +767,10 @@ require('lazy').setup({
         automatic_enable = { exclude = { 'pyright' } },
       }
 
-      -- Servers installed outside Mason (pipx), which mason-tool-installer must not try to install
-      local not_from_mason = { basedpyright = true }
-      local ensure_installed = vim.tbl_filter(function(name) return not not_from_mason[name] end, vim.tbl_keys(servers or {}))
+      -- Tools already on PATH (pip, pipx, Homebrew, a Dockerfile) are used as they are; Mason only
+      -- installs the missing ones. A container that installs them all never makes Mason download.
+      local executables = { lua_ls = 'lua-language-server' }
+      local ensure_installed = vim.tbl_filter(function(name) return vim.fn.executable(executables[name] or name) == 0 end, vim.tbl_keys(servers or {}))
       vim.list_extend(ensure_installed, {
         -- You can add other tools here that you want Mason to install
       })
