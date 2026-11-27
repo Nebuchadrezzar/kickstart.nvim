@@ -473,14 +473,16 @@ require('lazy').setup({
                     vim.cmd('vsplit ' .. entry.path)
                   end
                 else
-                  -- Default single file opening
-                  actions.file_edit(prompt_bufnr)
+                  -- The picker's own default action (opens a file, applies a colorscheme, ...)
+                  actions.select_default(prompt_bufnr)
                 end
               end,
             },
           },
         },
-        -- pickers = {}
+        pickers = {
+          colorscheme = { enable_preview = true }, -- apply each scheme as you move through the list
+        },
         extensions = {
           ['ui-select'] = { require('telescope.themes').get_dropdown() },
         },
