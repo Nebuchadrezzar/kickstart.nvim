@@ -692,21 +692,20 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- basedpyright (Pyright's engine, installed with `pipx install basedpyright`, not Mason) is the
-        -- language server for completion, navigation and hover. Type checking of Django code is left to
-        -- mypy + django-stubs (lua/custom/plugins/lint.lua), because Pyright can't see the attributes
-        -- Django adds at runtime. Turn off its attribute errors in the project's Pyright config
-        -- (reportAttributeAccessIssue = "none"); config-file settings override settings sent from here.
-        basedpyright = {
-          settings = {
-            basedpyright = { disableOrganizeImports = true }, -- Using Ruff's import organizer
-            python = {},
-          },
-          -- Point it at the project's Poetry venv, the same Python mypy runs from. Without one (the client
-          -- containers), it finds the system Python on PATH itself.
-          before_init = function(_, config)
-            local python = require('custom.python_env').venv_bin(config.root_dir, 'python')
-            if python then config.settings.python.pythonPath = python end
+        -- Zuban (Rust, by jedi's author, mypy-compatible; `pipx install zuban`, pip in the containers) is the
+        -- language server for completion, navigation, hover and type feedback while typing. It doesn't run
+        -- mypy plugins, so Django-aware checks still come from mypy + django-stubs on save
+        -- (lua/custom/plugins/lint.lua).
+        -- It finds third-party packages only through VIRTUAL_ENV, which must be set when it starts (too
+        -- early for before_init): the Poetry venv locally, the system Python's prefix (/usr/local) in the
+        -- containers. Without it, packages such as celery resolve to Any or "module not found".
+        zuban = {
+          cmd = function(dispatchers, config)
+            local prefix = require('custom.python_env').python_prefix(config.root_dir)
+            return vim.lsp.rpc.start({ 'zuban', 'server' }, dispatchers, {
+              cwd = config.root_dir,
+              env = prefix and { VIRTUAL_ENV = prefix } or nil,
+            })
           end,
         },
         ruff = {}, -- Python linting, import sorting and formatting (see conform below)
@@ -763,7 +762,7 @@ require('lazy').setup({
       -- Translates between nvim-lspconfig server names and mason.nvim package names (e.g. lua_ls <-> lua-language-server)
       require('mason-lspconfig').setup {
         -- true: also start servers installed by hand via :Mason (e.g. html, ts_ls), as before
-        -- except Mason's pyright, which basedpyright replaces
+        -- except Mason's pyright, which Zuban replaces
         automatic_enable = { exclude = { 'pyright' } },
       }
 

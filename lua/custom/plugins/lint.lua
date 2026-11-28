@@ -1,9 +1,9 @@
 -- Type checking for Python with mypy + django-stubs, run on save.
 --
--- Pyright/basedpyright can't see what Django adds at runtime (implicit `id`, reverse relations such as
--- `deal_set`, `user.profile`), so its attribute errors are false positives on Django models. mypy's
--- django-stubs plugin runs django.setup() and knows those attributes. basedpyright stays the language
--- server for completion and navigation; mypy is the type checker.
+-- Zuban, the language server (init.lua), type checks while typing but can't run mypy plugins, so it misses
+-- what only django-stubs knows: invalid query lookups (`filter(task_agrgs=...)`), and the attributes Django
+-- adds at runtime (implicit `id`, reverse relations such as `deal_set`, `user.profile`). mypy's django-stubs
+-- plugin runs django.setup() and checks those. Some errors are reported by both, labelled zuban and mypy.
 --
 -- The django-stubs plugin runs inside the mypy process, so mypy must come from the project's own
 -- environment (a Mason or pipx mypy can't load it): the Poetry venv locally, the system Python in the

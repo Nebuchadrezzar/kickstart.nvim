@@ -1,5 +1,5 @@
 -- Locate a Python project's root and its Poetry virtualenv, shared by the language server
--- (basedpyright, init.lua) and the type checker (mypy, custom/plugins/lint.lua) so both see the same
+-- (Zuban, init.lua) and the type checker (mypy, custom/plugins/lint.lua) so both see the same
 -- packages.
 --
 -- Locally the project's packages live in a Poetry venv. In the client containers there is no Poetry
@@ -39,6 +39,26 @@ function M.venv_bin(root, tool)
   local path = venv and (venv .. '/bin/' .. tool)
   if path and vim.fn.executable(path) == 1 then return path end
   return nil
+end
+
+local system_prefix
+
+--- The environment holding a project's packages, as a VIRTUAL_ENV value: its Poetry venv, else the
+--- prefix of the `python3` on PATH (/usr/local in the containers), or nil when there is neither.
+---@param root string?
+---@return string?
+function M.python_prefix(root)
+  local venv = M.poetry_venv(root)
+  if venv then return venv end
+  if system_prefix == nil then
+    system_prefix = false
+    if vim.fn.executable 'python3' == 1 then
+      local result = vim.system({ 'python3', '-c', 'import sys; print(sys.prefix)' }, { text = true }):wait()
+      local path = result.code == 0 and vim.trim(result.stdout or '') or ''
+      if path ~= '' then system_prefix = path end
+    end
+  end
+  return system_prefix or nil
 end
 
 return M
